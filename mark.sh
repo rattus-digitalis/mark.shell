@@ -54,6 +54,16 @@ fi
 
 cd "$PROJECT_DIR" || exit 1
 
+# --- Check mandatory files ---
+mandatory_files=("header.h" "main.c" "Makefile" "readme.txt")
+for file in "${mandatory_files[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo "Error: Mandatory file '$file' is missing!"
+        exit 1
+    fi
+done
+echo "All mandatory files are present."
+
 # --- Functions ---
 add_note() {
     note=$(echo "$note + $1" | bc)
@@ -68,11 +78,6 @@ add_detail() {
 }
 
 # --- Security check on Makefile ---
-if [ ! -f Makefile ]; then
-    echo "Error: No Makefile found."
-    exit 1
-fi
-
 echo "Performing security check on Makefile..."
 
 # Check for dangerous commands except standard 'rm -f <file>'
@@ -188,15 +193,22 @@ ERROR_FILE="error.${nom}.md"
 echo "Name,First Name,Score" > "$CSV_FILE"
 echo "'$nom','$prenom',$note" >> "$CSV_FILE"
 
-# --- Write Markdown report ---
-{
-    echo "# Correction Report"
-    echo ""
-    for line in "${details[@]}"; do
-        echo -e "$line"
+# --- Ask to create Markdown report ---
+read -p "Do you want to create the Markdown correction report? (Y/N): " create_md
+if [[ "$create_md" =~ ^[Yy]$ ]]; then
+    # --- Write Markdown report ---
+    {
+        echo "# Correction Report"
         echo ""
-    done
-} > "$ERROR_FILE"
+        for line in "${details[@]}"; do
+            echo -e "$line"
+            echo ""
+        done
+    } > "$ERROR_FILE"
+    echo "Markdown correction report created: $ERROR_FILE"
+else
+    echo "Markdown correction report not created."
+fi
 
 # --- Cleanup ---
 if $USE_ZIP; then
