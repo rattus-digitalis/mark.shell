@@ -1,0 +1,13 @@
+# Ignore generated correction files
+note.*.csv
+error.*.md
+
+# Ignore temporary folders
+work_temp/
+.history/
+
+# Ignore archives
+*.zip
+
+# Ignore Git internal
+.git/
